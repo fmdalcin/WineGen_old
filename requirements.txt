@@ -1,6 +1,8 @@
 streamlit
-pandas
-sklearn
+pandas==2.1.4
+scikit-learn.neighbors == 1.3.2
+scikit-learn.preprocessing == 1.3.2
+numpy == 1.26.3
 
 # API
 fastapi
