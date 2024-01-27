@@ -3,10 +3,9 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("raw_data/test.csv", index_col=0)
-
+df = pd.read_csv("./raw_data/preprocessed_data.csv")
 col1, col2, col3= st.columns(3)
-
+print(df.columns)
 with col1:
 
 # Get unique values from the "country" column
@@ -22,13 +21,13 @@ with col1:
 
 
 # Get unique values from the "variety" column for the selected country
-    varieties_for_country = sorted(filtered_df_country["variety"].unique())
+    varieties_for_country = sorted(filtered_df_country["variety_adj"].unique())
 
 # Create a second dropdown list for the variety
     selected_variety = st.selectbox(f"Select a variety for {selected_country}", varieties_for_country)
 
 # Filter DataFrame based on the selected variety
-    filtered_df_variety = filtered_df_country[filtered_df_country["variety"] == selected_variety]
+    filtered_df_variety = filtered_df_country[filtered_df_country["variety_adj"] == selected_variety]
 
 
 
