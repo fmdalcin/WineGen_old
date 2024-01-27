@@ -18,7 +18,6 @@ def clean_rawdata():
     df.dropna(inplace=True)
     df.drop(df[df['type']=='delete'].index,inplace=True)
     df.to_csv("./raw_data/preprocessed_data.csv", index=False)
-
     return df
 
 def scaling(df):
@@ -27,7 +26,7 @@ def scaling(df):
     #Description and tiles won't be used in the model, but are required in the
     # output for the user
     X=df.drop(columns=['description','title'])
-    X.reset_index(inplace=True)
+    X.reset_index(inplace=True, drop=True)
 
     #Encoding text fields into unique distinct numbers
     label_encoder_country = LabelEncoder()
@@ -44,7 +43,7 @@ def scaling(df):
 
     #Type is a strong required feature. One Hot Encoded instead of labeled to
     # ensure it is factored in and not scaled.
-    one_hot_encoder_type = OneHotEncoder(sparse=False)
+    one_hot_encoder_type = OneHotEncoder(sparse_output=False)
 
     type_encoded = one_hot_encoder_type.fit_transform(X[['type']])
     type_categories = one_hot_encoder_type.get_feature_names_out(['type'])
@@ -62,8 +61,8 @@ def scaling(df):
 
     #The OneHotEncoded Features are added to the scaled DataFrame
     X_scaled[type_categories] = type_encoded
-    X_scaled.drop(columns=['ID'], inplace=True)
-    print(X_scaled.columns)
+    # X_scaled.drop(columns=['ID'], inplace=True)
+    print(df.columns)
     features_weights=[1,1,1,1,2,3,1,3,3,3,3]
     X_scaled=X_scaled*features_weights
 
