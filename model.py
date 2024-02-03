@@ -5,7 +5,7 @@ from sklearn.neighbors import NearestNeighbors
 def train(X_scaled:pd.DataFrame)-> NearestNeighbors:
     '''Receives the X scaled Dataframe and trains the classification model'''
 
-    neigh = NearestNeighbors(n_neighbors=200, algorithm='ball_tree', n_jobs=-1)
+    neigh = NearestNeighbors(n_neighbors=10000, algorithm='ball_tree', n_jobs=-1)
     neigh.fit(X_scaled)
 
     return neigh
@@ -15,6 +15,6 @@ def predict(neigh:NearestNeighbors, X_pred:list|np.ndarray, df:pd.DataFrame) -> 
     sample'''
 
     distance, indices = neigh.kneighbors(X_pred)
-    pred_df=df.iloc[indices[0]]
+    # pred_df=df.iloc[indices[0]] #Commented so it returns a np.array instead of pd.DataFrame
 
-    return pred_df, distance
+    return distance, indices
