@@ -46,7 +46,7 @@ def resolve_synonyms(df:pd.DataFrame)->pd.DataFrame:
     # with the main synonyms for each grape variety
     df['variety_adj'] = df['variety'].apply(lambda grape: next((key for key, value in syns.items() if grape in value), None))
     df.drop(columns=['variety'], inplace=True)
-    df.to_csv("./raw_data/preprocessed_data.csv", index=False)
+    df.to_csv("./raw_data/preprocessed_data.csv", index=True)
 
     return df
 
