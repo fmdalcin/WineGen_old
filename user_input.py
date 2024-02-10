@@ -4,7 +4,7 @@ import numpy as np
 from model import predict
 
 
-def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh, df:pd.DataFrame) -> pd.DataFrame:
+def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh, df:pd.DataFrame, type_selected:str) -> pd.DataFrame:
     input_df=X_scaled.iloc[input_list]
 
     #Create a subset of predicted wines for each wine inputted by the user
@@ -12,7 +12,7 @@ def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh, df:pd.Dat
     distances={}
     list_subsets=[]
     for i, wine in enumerate(input_list):
-        distance, subset=predict(neigh,[X_scaled.iloc[wine]],df)
+        distance, subset=predict(neigh, type_selected, [X_scaled.iloc[wine]],X_scaled)
         subsets[f'subset{i}']=subset
         distances[f'distance{i}']=distance
         list_subsets.append(subset)

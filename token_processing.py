@@ -33,7 +33,6 @@ def clean_text (text):
         cleaned = ' '.join(lemmatized) # Join back to a string
     return cleaned
 
-
 def split_token_datasets(df:pd.DataFrame):
 
     if token_clean_path.is_file():
@@ -70,12 +69,12 @@ def vectoriser(df_red:pd.DataFrame, df_white:pd.DataFrame, df_rose:pd.DataFrame,
 
     # Generated dataframes:   vectorized_descr_red,   vectorized_descr_white,  vectorized_descr_rose,  vectorized_descr_spark
 
-    print(f"{'Wine Data': >8}\
-        No.Dirty Tokens    ---   still need cleaning, several are meaningless (cleaning done in next cells)\n-----------------------------\
-                                            \n{'Red :': >11}\t{vectorized_descriptions['vectorized_descr_red'].shape[1]}\
-                                            \n{'White :': >11}\t{vectorized_descriptions['vectorized_descr_white'].shape[1]}\
-                                            \n{'Rose :': >11}\t{vectorized_descriptions['vectorized_descr_rose'].shape[1]}\
-                                            \n{'Sparkling :': >11}\t{vectorized_descriptions['vectorized_descr_spark'].shape[1]}")
+    # print(f"{'Wine Data': >8}\
+    #     No.Dirty Tokens    ---   still need cleaning, several are meaningless (cleaning done in next cells)\n-----------------------------\
+    #                                         \n{'Red :': >11}\t{vectorized_descriptions['vectorized_descr_red'].shape[1]}\
+    #                                         \n{'White :': >11}\t{vectorized_descriptions['vectorized_descr_white'].shape[1]}\
+    #                                         \n{'Rose :': >11}\t{vectorized_descriptions['vectorized_descr_rose'].shape[1]}\
+    #                                         \n{'Sparkling :': >11}\t{vectorized_descriptions['vectorized_descr_spark'].shape[1]}")
 
     not_useful_tokens_red = ['aroma', 'bit', 'black', 'blend', 'bodied', 'cabernet', 'come',
                              'concentrated', 'dark', 'dense', 'dried', 'drink', 'feel', 'fine',
@@ -112,9 +111,10 @@ def vectoriser(df_red:pd.DataFrame, df_white:pd.DataFrame, df_rose:pd.DataFrame,
             if bad_token in vectorized_descriptions[f'vectorized_descr_{type}'].columns:
                 vectorized_descriptions[f'vectorized_descr_{type}'].drop(columns=bad_token, inplace=True)
         vectorized_descriptions[f'vectorized_descr_{type}']['ID'] = datasets[type]['ID']
+        vectorized_descriptions[f'vectorized_descr_{type}'].to_csv(f'./raw_data/vectorized_descriptions_{type}.csv', index = False)
 
 
-    return vectorized_descriptions['vectorized_descr_red'], vectorized_descriptions['vectorized_descr_white'], vectorized_descriptions['vectorized_descr_rose'], vectorized_descriptions['vectorized_descr_spark']
+    return vectorized_descriptions
 
 def top_tokens(token_weights, top_words, columns_wine_clusters):
 
@@ -134,12 +134,14 @@ def top_tokens(token_weights, top_words, columns_wine_clusters):
     top = top.set_axis(indices)
     return top
 
-def lda_modeler(vectorized_descr_red:pd.DataFrame, vectorized_descr_white:pd.DataFrame, vectorized_descr_rose:pd.DataFrame, vectorized_descr_spark:pd.DataFrame):
+def lda_modeler(vectorized_descriptions:dict):
+    '''Receives a dict of 4 dataframes, one for each wyne type. Creates LDA model for each type.'''
+
     n_components = 10   # number of clusters (topics) we want
     columns_wine_clusters = [f'wine_cluster_{n}' for n in range(1, n_components+1)] # creating column names
 
-    vectorized_descr={'red':vectorized_descr_red, 'white':vectorized_descr_white,
-                      'rose':vectorized_descr_rose, 'spark':vectorized_descr_spark}
+    vectorized_descr={'red':vectorized_descriptions['vectorized_descr_red'], 'white':vectorized_descriptions['vectorized_descr_white'],
+                      'rose':vectorized_descriptions['vectorized_descr_rose'], 'spark':vectorized_descriptions['vectorized_descr_spark']}
     lda_models={}
     lda_wine_cluster_prob={}
 
@@ -166,3 +168,12 @@ def lda_modeler(vectorized_descr_red:pd.DataFrame, vectorized_descr_white:pd.Dat
         top_token[type].to_csv(f'./raw_data/top_token_{type}.csv', index=False)
 
     return lda_models, lda_wine_cluster_prob, lda_token_weights, top_token
+
+def generate_tokens_list(vectorized_descriptions:dict, type_selected:str, pred_df:pd.DataFrame)->list:
+    '''Matches the NearestNeighbors prediction to the vectorized dataframe to create a list of tokens
+    to display to the user'''
+
+    pred_df['ID']=pred_df['match_wine']
+    selected_vectors=pd.merge(vectorized_descriptions[f'vectorized_descr_{type_selected}'], pred_df, on='ID', how='inner')
+    tokens_list=selected_vectors.drop(columns=['match_wine', 'total_distance', 'ID']).sum().sort_values(ascending=False)[0:10].index.tolist()
+    return tokens_list
