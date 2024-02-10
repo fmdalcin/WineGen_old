@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-#from api import predict
+from api import predict
 import model
 import requests
 from main import X_scaled
@@ -188,7 +188,6 @@ def main():
 
         # Create a fourth dropdown list for the title
         selected_title4 = st.selectbox(f"Select a title for {selected_winery} in {selected_country} ({selected_variety})", titles_for_winery, key="titles_for_winery4")
-    # Create a dataframe of selections and extract index
 
     with col5:
 
@@ -231,15 +230,12 @@ def main():
 
         # Create a fourth dropdown list for the title
         selected_title5 = st.selectbox(f"Select a title for {selected_winery} in {selected_country} ({selected_variety})", titles_for_winery, key="titles_for_winery5")
-    # Create a dataframe of selections and extract index
 
-    selected_df = df[(df["title"] == selected_title1) |(df["title"] == selected_title2) | (df["title"] == selected_title3) | (df["title"] == selected_title4) | (df["title"] == selected_title5)]
-    all_index = selected_df.index.to_list() # Convert the Index to a list
 
-    st.table(selected_df)
-    print(all_index)
+    #st.table(selected_df)
+    #print(all_index)
 
-    # Token list
+    #Token list
     preselected_tokens = ['berry', 'coffee', 'oak', 'ripe', 'spicy']
     default_tokens = ['oak', 'ripe']
     question = "We have selected the most relevant features of your first wine list. To refine your selection, uncheck the features that you consider of low importance"
@@ -248,21 +244,48 @@ def main():
 
 
 
-    #if st.button("Get Prediction"):
-        # Make a request to the FastAPI backend
-        # api_url = "http://localhost:8000/predict"
+    # if st.button("Get Prediction"):
+    #     #Make a request to the FastAPI backend
+    #     api_url = "http://localhost:8000/predict"
 
-        # processed_input_dict = predict()
-        # params = (processed_input_dict)
+    #     processed_input_dict = predict()
+    #     params = (processed_input_dict)
 
-        # response = requests.get(api_url, params=params)
+    #     response = requests.get(api_url, params=params)
 
 
-        # # Display the API response
-        # # if response.status_code == 200:
-        # st.success(f"API Response: {response.json()}")
-        # else:
-        #     st.success(f"Select country")
+    #     # Display the API response
+    #     # if response.status_code == 200:
+    #     st.success(f"API Response: {response.json()}")
+    # else:
+    #     st.success(f"Select country")
+
+
+
+    all_index = []  # Initialize all_index outside the if block
+    if st.button("Get Prediction"):
+        selected_df = df[(df["title"] == selected_title1) | (df["title"] == selected_title2) | (df["title"] == selected_title3) | (df["title"] == selected_title4) | (df["title"] == selected_title5)]
+        all_index = selected_df.index.to_list() # Assign value to all_index
+        #st.table(selected_df)
+        #st.write(all_index)
+        print(all_index)
+        # Make API call to FastAPI endpoint
+        if all_index:
+            #api_url = "http://localhost:8000/predict"
+            api_url = " http://127.0.0.1:8000/predict"
+            #response = requests.post(api_url, params={"all_index": all_index})
+            #response = requests.post(api_url, json = {"all_index": all_index})
+            response = requests.post(api_url, json = all_index)
+            if response.status_code == 200:
+                try:
+                    processed_input_dict = response.json()
+                    st.write("Processed Input:", processed_input_dict)
+                except ValueError as e:
+                    st.error("Error parsing JSON response: {}".format(e))
+            else:
+                st.error("Error: Request failed with status code {}".format(response.status_code))
+
+
 
 
 if __name__ == "__main__":
