@@ -6,4 +6,5 @@ more-itertools == 10.2.0
 nltk == 3.8.1
 
 # API
-fastapi
+fastapi == 0.109.2
+uvicorn == 0.27.1

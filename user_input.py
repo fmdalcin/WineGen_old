@@ -4,7 +4,7 @@ import numpy as np
 from model import predict
 
 
-def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh, df:pd.DataFrame, type_selected:str) -> pd.DataFrame:
+def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh:dict, df:pd.DataFrame, type_selected:str) -> pd.DataFrame:
     input_df=X_scaled.iloc[input_list]
 
     #Create a subset of predicted wines for each wine inputted by the user
@@ -62,7 +62,7 @@ def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh, df:pd.Dat
     best_single_wine_match=None
     for i in range(len(input_list),1,-1):
         if not found_best_match:
-            if wine_combinations[wine_combinations['wines_used']==i]['intercept'].max() > 1000:
+            if wine_combinations[wine_combinations['wines_used']==i]['intercept'].max() > 500:
                 best_match_row=wine_combinations.loc[
                 (wine_combinations['intercept']==wine_combinations[wine_combinations['wines_used']==i]['intercept'].max())
                 &(wine_combinations['wines_used']==i)]
@@ -92,8 +92,8 @@ def process_user_input (input_list:list, X_scaled:pd.DataFrame, neigh, df:pd.Dat
                 match_distances.append(distances_df.iloc[subsets_df.loc[subsets_df[f'subset{wine}']==match_wine].index[0]].iloc[wine])
             unfiltered_wine_list['total_distance']=unfiltered_wine_list['total_distance'] + match_distances
     else: #if 1 wine only, uses the distances directly provided by the model
-        unfiltered_wine_list['match_wine']=subsets_df[f'subset{best_single_wine_match.index[0]}']
-        unfiltered_wine_list['total_distance']=distances_df[f'distance{best_single_wine_match.index[0]}']
+        unfiltered_wine_list['match_wine']=subsets_df[f'subset{0}'][1:]
+        unfiltered_wine_list['total_distance']=distances_df[f'distance{0}'][1:]
     unfiltered_wine_list.sort_values(by=['total_distance'], inplace=True)
     unfiltered_wine_list.reset_index(inplace=True,drop=True)
 

@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import pickle
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import RobustScaler
@@ -56,6 +57,8 @@ def scaling(df):
 
     #Description and tiles won't be used in the model, but are required in the
     # output for the user
+
+
     X=df.drop(columns=['description','title'])
     X.reset_index(inplace=True, drop=True)
 
@@ -93,8 +96,9 @@ def scaling(df):
     #The OneHotEncoded Features are added to the scaled DataFrame
     X_scaled[type_categories] = type_encoded
     # X_scaled.drop(columns=['ID'], inplace=True)
-    print(df.columns)
     features_weights=[1,1,1,1,2,3,1,3,3,3,3]
     X_scaled=X_scaled*features_weights
+    with open('./models/scaled_data.pkl', 'wb') as file:
+        pickle.dump(X_scaled, file)
 
     return X_scaled
